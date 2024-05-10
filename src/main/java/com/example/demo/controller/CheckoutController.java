@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.example.demo.entity.Book;
 import com.example.demo.service.LibraryManagementSystemService;
@@ -27,8 +28,11 @@ public class CheckoutController {
     }
 
     @GetMapping("/returnBook")
-    public String returnBook() {
-        // Add your logic here
-        return "Book returned successfully";
+    public String returnBook(@RequestParam String isbn) {
+        if (!currentUser.checkUser()) {
+            return "redirect:/loginPage";
+        }
+        service.deleteBookCheckout(currentUser.getCurrentUser(), service.getBook(isbn));
+        return "redirect:/userprofile";
     }
 }

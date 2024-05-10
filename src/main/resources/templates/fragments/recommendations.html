@@ -9,7 +9,9 @@
             </thead>
             <tbody>
             <tr th:each="book : ${recs}">
-                <td th:text="${book.title} "></td>
+                <td>
+                    <a th:href="@{/book(isbn=${book.isbn})}" th:text="${book.title}"> Book Title </a>
+                </td>
             </tr>
             </tbody>
         </table>

@@ -12,12 +12,14 @@ import com.example.demo.entity.Genre;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class UserProfileController {
 
     @Autowired
-    private  LibraryManagementSystemService service;
+    private LibraryManagementSystemService service;
 
     @Autowired
     private CurrentUser currentUser;
@@ -28,6 +30,7 @@ public class UserProfileController {
     public String getUserProfile(Model model) {
         if (currentUser.checkUser()) {
             model.addAttribute("user", currentUser.getCurrentUser());
+            model.addAttribute("userFees", service.getUserLateFees(currentUser.getCurrentUser()));
             // model.addAttribute("userRole",
             // libService.findByUsername(user.getUsername()));
         } else {
@@ -62,7 +65,9 @@ public class UserProfileController {
         User user = currentUser.getCurrentUser();
         logger.info("Current User: " + user.getUsername());
         List<Book> books = service.getUserCheckedBooks(user);
+        model.addAttribute("user", user);
         model.addAttribute("borrowedBooks", books);
+        model.addAttribute("service", service);
         logger.info("Returning books: " + books);
         return "fragments/borrowedBooks";
     }

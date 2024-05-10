@@ -173,6 +173,12 @@ public class UserRepositoryImpl implements UserRepository {
         jdbcTemplate.update(insertString, user.getUsername(), book.getIsbn(), stars);
     }
 
+    @Override
+    public void removeUserRating(User user, Book book) {
+        String deleteString = "DELETE FROM user_rates_book WHERE username = ? AND isbn = ?";
+        jdbcTemplate.update(deleteString, user.getUsername(), book.getIsbn());
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public List<Author> getUserFavoriteAuthors(User user) {
@@ -195,7 +201,7 @@ public class UserRepositoryImpl implements UserRepository {
             Number rating = (Number) results.get(0);
             return rating.intValue();
         }
-        return 0;  //no rating found
+        return -1; // no rating found
     }
 
 }

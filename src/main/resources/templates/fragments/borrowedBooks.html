@@ -1,17 +1,29 @@
 <!-- Thymeleaf fragment, namespace defined in main template -->
 <div>
-    <div class="table-container">
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Book Name</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="book : ${borrowedBooks}">
-                <td th:text="${book.title} "></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+  <div class="table-container">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Book Name</th>
+          <th>Due Date</th>
+          <th>Return</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="book : ${borrowedBooks}">
+          <td>
+            <a th:href="@{/book(isbn=${book.isbn})}" th:text="${book.title}"> Book Title </a>
+          </td>
+          <td
+            th:text="${service.getUserCheckedBook(user, book.isbn).dueDate}"
+          ></td>
+          <td>
+            <a th:href="@{/returnBook(isbn=${book.isbn})}">
+              <button class="btn btn-danger">Return</button>
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

@@ -1,116 +1,83 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta
-      charset="utf-8"
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
-    />
-    <title>Book Search</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-  </head>
+    <head>
+        <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Book Search</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    </head>
 
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-      <div class="container-fluid">
-        <a class="navbar-brand" href="#">Library</a>
-        <div class="collapse navbar-collapse">
-          <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
-              <a class="nav-link" th:href="@{/userprofile}">Account</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" th:href="@{/catalog/logout}">Logout</a>
-            </li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-    <div class="container">
-      <h1>Search for Books</h1>
-      <form
-        id="searchForm"
-        class="mb-4"
-        th:action="@{/catalog/search}"
-        method="GET"
-      >
-        <div class="mb-3">
-          <label for="title" class="form-label">Book Title:</label>
-          <input
-            type="text"
-            class="form-control"
-            id="title"
-            name="title"
-            placeholder="Enter book title"
-          />
-        </div>
-        <div class="mb-3">
-          <label for="author" class="form-label">Author Last Name:</label>
-          <input
-            type="text"
-            class="form-control"
-            id="author"
-            name="author"
-            placeholder="Enter author last name"
-          />
-        </div>
-        <div class="mb-3">
-          <label for="genre" class="form-label">Genre:</label>
-          <select class="form-select" id="genre" name="genre">
-            <option value="">Select a genre</option>
-            <option
-              th:each="genre : ${genres}"
-              th:value="${genre.name}"
-              th:text="${genre.name}"
-            ></option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Search</button>
-      </form>
-      <!-- Dynamically generate book catalog -->
-      <div id="booksContainer" class="row">
-        <div th:each="book, iterStat : ${books}" class="col-md-4 mb-4">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">
-                <a th:href="@{/book(isbn=${book.isbn})}"
-                   th:text="${book.title}">
-                  Book Title
-                </a>
-              </h5>
-              <p class="card-text">
-                <a
-                  th:href="@{/author(id=${resultAuthors[__${iterStat.index}__].authorId})}"
-                  th:text="${resultAuthors[__${iterStat.index}__].firstName} + ' ' + ${resultAuthors[__${iterStat.index}__].lastName}"
-                >
-                  Author Name
-                </a>
-              </p>
-              <p class="card-text">
-                <small th:text="${resultGenres[__${iterStat.index}__].name}"
-                  >Genre</small>
-              </p>
-              <p class="card-text">
-                <small th:text="'Remaining Copies: ' + ${remainingCopies[__${iterStat.index}__]}"
-                >Copies</small>
-              </p>
-              <div th:if="${service.checkBookAvailable(book)}">
-                <a th:href="@{/catalog/checkout(isbn=${book.isbn})}">
-                  <button class="btn btn-success">Checkout</button>
-                </a>
-              </div>
-              <div th:unless="${service.checkBookAvailable(book)}">
-                <button class="btn btn-secondary" disabled>Unavailable</button>
-              </div>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Library</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/userprofile}">Account</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" th:href="@{/catalog/logout}">Logout</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-          </div>
+        </nav>
+
+        <div class="container">
+            <h1>Search for Books</h1>
+            <form id="searchForm" class="mb-4" th:action="@{/catalog/search}" method="GET">
+                <p class="text-danger my-1" th:if="${checkErr}" th:text="${checkErr}"></p>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Book Title:</label>
+                    <input type="text" class="form-control" id="title" name="title" placeholder="Enter book title" />
+                </div>
+                <div class="mb-3">
+                    <label for="author" class="form-label">Author Last Name:</label>
+                    <input type="text" class="form-control" id="author" name="author" placeholder="Enter author last name" />
+                </div>
+                <div class="mb-3">
+                    <label for="genre" class="form-label">Genre:</label>
+                    <select class="form-select" id="genre" name="genre">
+                        <option value="">Select a genre</option>
+                        <option th:each="genre : ${genres}" th:value="${genre.name}" th:text="${genre.name}"></option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+            <!-- Dynamically generate book catalog -->
+            <div id="booksContainer" class="row">
+                <div th:each="book, iterStat : ${books}" class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <a th:href="@{/book(isbn=${book.isbn})}" th:text="${book.title}"> Book Title </a>
+                            </h5>
+                            <p class="card-text">
+                                <a
+                                    th:href="@{/author(id=${resultAuthors[__${iterStat.index}__].authorId})}"
+                                    th:text="${resultAuthors[__${iterStat.index}__].firstName} + ' ' + ${resultAuthors[__${iterStat.index}__].lastName}">
+                                    Author Name
+                                </a>
+                            </p>
+                            <p class="card-text">
+                                <small th:text="${resultGenres[__${iterStat.index}__].name}">Genre</small>
+                            </p>
+                            <p class="card-text">
+                                <small th:text="'Remaining Copies: ' + ${remainingCopies[__${iterStat.index}__]}">Copies</small>
+                            </p>
+                            <div th:if="${service.checkBookAvailable(book)}">
+                                <a th:href="@{/catalog/checkout(isbn=${book.isbn})}">
+                                    <button class="btn btn-success">Checkout</button>
+                                </a>
+                            </div>
+                            <div th:unless="${service.checkBookAvailable(book)}">
+                                <button class="btn btn-secondary" disabled>Unavailable</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>

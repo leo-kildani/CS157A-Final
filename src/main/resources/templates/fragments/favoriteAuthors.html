@@ -9,7 +9,13 @@
             </thead>
             <tbody>
             <tr th:each="author : ${favAuthors}">
-                <td th:text="${author.firstName} + ' ' + ${author.lastName}"></td>
+                <td>
+                    <a
+                        th:href="@{/author(id=${author.authorId})}"
+                        th:text="${author.firstName} + ' ' + ${author.lastName}">
+                        Author Name
+                    </a>
+                </td>
             </tr>
             </tbody>
         </table>

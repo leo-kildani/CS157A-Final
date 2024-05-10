@@ -10,7 +10,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.Data;
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "book_checkouts")
@@ -32,12 +34,19 @@ public @Data class BookCheckout {
     private LocalDate checkoutDate;
 
     @Transient
+    @Setter(AccessLevel.NONE)
     private LocalDate dueDate;
 
     public BookCheckout(String username, String isbn) {
         this.username = username;
         this.isbn = isbn;
         this.checkoutDate = LocalDate.now();
-        this.dueDate = checkoutDate.plusDays(30);
+    }
+
+    public LocalDate getDueDate() {
+        if (dueDate == null) {
+            dueDate = checkoutDate.plusDays(30);
+        }
+        return dueDate;
     }
 }

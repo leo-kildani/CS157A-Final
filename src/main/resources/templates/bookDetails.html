@@ -1,127 +1,144 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Book Search</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Book Search</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">Library</a>
+                <div class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/catalog">Search Catalog</a>
+                            <!-- Change this link to your catalog search page -->
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/userprofile">Account</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logout">Logout</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Library</a>
-        <div class="collapse navbar-collapse">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link" href="/catalog">Search Catalog</a> <!-- Change this link to your catalog search page -->
-                </li>
-            </ul>
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/userprofile">Account</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+        <div class="container">
+            <h1 th:text="${book.title}">Book Title</h1>
 
-<div class="container">
-    <h1 th:text="${book.title}">Book Title</h1>
+            <!-- Description box -->
+            <div class="description-container mb-4">
+                <p th:text="${book.description}">Book description</p>
+                <p th:text="'Published: ' + ${book.publishDate}">Publish Date</p>
+                <p th:text="'Remaining Copies: ' + ${remainingCopies}">Remaining Copies</p>
+            </div>
 
-    <!-- Description box -->
-    <div class="description-container mb-4">
-        <p th:text="${book.description}">Book description</p>
-        <p th:text="'Published: ' + ${book.publishDate}">Publish Date</p>
-        <p th:text="'Remaining Copies: ' + ${remainingCopies}">Remaining Copies</p>
-    </div>
-
-    <h3>Author</h3>
-    <div class="card">
-        <div class="card-body">
-            <h5 class="card-text">
-                <a th:href="@{/author(id=${author.authorId})}"
-                   th:text="${author.firstName} + ' ' + ${author.lastName}">
-                    Author Name
-                </a>
-            </h5>
-        </div>
-    </div>
-
-    <br>
-
-    <h3>Genres</h3>
-    <!-- Dynamically generate book catalog -->
-    <div id="genreContainer" class="row">
-        <div th:each="genre, iterStat : ${genres}" class="col-md-4 mb-4">
+            <h3>Author</h3>
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title" th:text="${genre.name}">Book Title</h5>
+                    <h5 class="card-text">
+                        <a th:href="@{/author(id=${author.authorId})}" th:text="${author.firstName} + ' ' + ${author.lastName}"> Author Name </a>
+                    </h5>
+                    <form th:action="@{/favoriteAuthor(isbn=${book.isbn})}" method="post">
+                        <input type="hidden" name="authorId" th:value="${author.authorId}" />
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="favorited" th:id="${authorCheckbox}" th:checked="${authorFavedBool}" />
+                            <label class="form-check-label" th:for="${authorCheckbox}"> Favorite this author </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+
+            <br />
+
+            <h3>Genres</h3>
+
+            <div id="genreContainer" class="row">
+                <div th:each="genre, iterStat : ${genres}" class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${genre.name}">Genre Name</h5>
+                            <p th:text="${genre.overview}">Genre Overview</p>
+                            <form th:action="@{/likeGenre(isbn=${book.isbn})}" method="post">
+                                <input type="hidden" name="genreName" th:value="${genre.name}" />
+                                <div class="form-check">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="liked"
+                                        th:id="${'genreCheckbox' + iterStat.index}"
+                                        th:checked="${genresLikedBool[iterStat.index]}" />
+                                    <label class="form-check-label" th:for="${'genreCheckbox' + iterStat.index}"> Like this genre </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rating-container">
+                <h3>Ratings:</h3>
+                <form th:action="@{/rate(isbn=${book.isbn})}" method="post">
+                    <div class="form-group">
+                        <label for="rating">Rate this Book:</label>
+                        <select id="rating" name="rating" class="form-control">
+                            <option value="5">5 Stars</option>
+                            <option value="4">4 Stars</option>
+                            <option value="3">3 Stars</option>
+                            <option value="2">2 Stars</option>
+                            <option value="1">1 Star</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Rating</button>
+                </form>
+
+                <!-- Rating Display Card -->
+                <div class="card my-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Your Current Rating:</h5>
+                        <p class="card-text" th:text="${userRating <= 0 ? 'Unrated' : userRating + ' Stars'}"></p>
+                    </div>
+                </div>
+
+                <!-- Overall Rating Display Card -->
+                <div class="card my-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Current Overall Rating:</h5>
+                        <p class="card-text" th:text="${overallRating == 0.0 ? 'Unrated' : overallRating + ' Stars'}"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="review-container">
+                <h3>Reviews</h3>
+                <form th:action="@{/submitReview(isbn=${book.isbn})}" method="post">
+                    <div class="form-group">
+                        <label for="reviewContent">Write a Review:</label>
+                        <textarea id="reviewContent" name="reviewContent" class="form-control" placeholder="Enter your review here..."></textarea>
+                        <button type="submit" class="btn btn-primary mt-2">Submit Review</button>
+                    </div>
+                </form>
+
+                <div th:each="review : ${reviews}">
+                    <div class="card my-2">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${review.username}">Username</h5>
+                            <h6 class="card-subtitle mb-2 text-muted" th:text="${review.publishDate}">Publish Date</h6>
+                            <p class="card-text" th:text="${review.content}">Review Content</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-
-    <div class="rating-container">
-        <h3>Ratings:</h3>
-        <form th:action="@{/rate(isbn=${book.isbn})}" method="post">
-            <div class="form-group">
-                <label for="rating">Rate this Book:</label>
-                <select id="rating" name="rating" class="form-control">
-                    <option value="5">5 Stars</option>
-                    <option value="4">4 Stars</option>
-                    <option value="3">3 Stars</option>
-                    <option value="2">2 Stars</option>
-                    <option value="1">1 Star</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit Rating</button>
-        </form>
-
-        <!-- Rating Display Card -->
-        <div class="card my-4">
-            <div class="card-body">
-                <h5 class="card-title">Your Current Rating:</h5>
-                <p class="card-text" th:text="${userRating == 0 ? 'Unrated' : userRating + ' Stars'}"></p>
-            </div>
-        </div>
-
-        <!-- Overall Rating Display Card -->
-        <div class="card my-4">
-            <div class="card-body">
-                <h5 class="card-title">Current Overall Rating:</h5>
-                <p class="card-text" th:text="${overallRating == 0.0 ? 'Unrated' : overallRating + ' Stars'}"></p>
-            </div>
-        </div>
-    </div>
-
-    <div class="review-container">
-        <h3>Reviews</h3>
-        <form th:action="@{/submitReview(isbn=${book.isbn})}" method="post">
-            <div class="form-group">
-                <label for="reviewContent">Write a Review:</label>
-                <textarea id="reviewContent" name="reviewContent" class="form-control" placeholder="Enter your review here..."></textarea>
-                <button type="submit" class="btn btn-primary mt-2">Submit Review</button>
-            </div>
-        </form>
-
-        <div th:each="review : ${reviews}">
-            <div class="card my-2">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${review.username}">Username</h5>
-                    <h6 class="card-subtitle mb-2 text-muted" th:text="${review.publishDate}">Publish Date</h6>
-                    <p class="card-text" th:text="${review.content}">Review Content</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
 </html>
